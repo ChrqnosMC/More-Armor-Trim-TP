@@ -1,0 +1,44 @@
+{
+  "sources": [
+    {
+      "type": "paletted_permutations",
+      "textures": [
+        "trims/items/boots_trim",
+        "trims/items/chestplate_trim",
+        "trims/items/helmet_trim",
+        "trims/items/leggings_trim"
+      ],
+      "palette_key": "trims/color_palettes/trim_palette",
+      "permutations": {
+        "armadillo_scute": "trims/color_palettes/armadillo_scute",
+		    "blaze_rod": "trims/color_palettes/blaze_rod",
+        "bone": "trims/color_palettes/bone",
+        "breeze_rod": "trims/color_palettes/breeze_rod",
+        "coal": "trims/color_palettes/coal",
+        "dragon_breath": "trims/color_palettes/dragon_breath",
+        "echo_shard": "trims/color_palettes/echo_shard",
+        "end_crystal": "trims/color_palettes/end_crystal",
+        "ender_pearl": "trims/color_palettes/ender_pearl",
+        "experience_bottle": "trims/color_palettes/experience_bottle",
+        "fire_charge": "trims/color_palettes/fire_charge",
+        "glow_ink": "trims/color_palettes/glow_ink",
+        "glowstone": "trims/color_palettes/glowstone",
+        "gunpowder": "trims/color_palettes/gunpowder",
+        "heart_of_the_sea": "trims/color_palettes/heart_of_the_sea",
+        "honeycomb": "trims/color_palettes/honeycomb",
+        "leather": "trims/color_palettes/leather",
+        "nautilus": "trims/color_palettes/nautilus",
+        "nether_brick": "trims/color_palettes/nether_brick",
+        "nether_star": "trims/color_palettes/nether_star",
+        "netherite_scrap": "trims/color_palettes/netherite_scrap",
+        "phantom_membrane": "trims/color_palettes/phantom_membrane",
+        "prismarine": "trims/color_palettes/prismarine",
+        "prismarine_crystals": "trims/color_palettes/prismarine_crystals",
+        "purpur": "trims/color_palettes/purpur",
+        "rabbit_hide": "trims/color_palettes/rabbit_hide",
+        "slime": "trims/color_palettes/slime",
+        "turtle_scute": "trims/color_palettes/turtle_scute"
+      }
+    }
+  ]
+}
