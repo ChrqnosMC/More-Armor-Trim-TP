@@ -1,2 +1,2 @@
 # More Armor Trim TP
- Ressourcepack that works with More Armor Trim DP
+ Resourcepack that works with More Armor Trim DP
