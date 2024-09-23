@@ -2,55 +2,55 @@
   "parent": "minecraft:item/generated",
   "overrides": [
     {
-      "model": "minecraft:item/custom_trims/chainmail_chestplate_blaze_rod_trim",
+      "model": "more_armor_trim:item/chainmail_chestplate_blaze_rod_trim",
       "predicate": {
         "trim_type": 0.01
       }
     },
     {
-      "model": "minecraft:item/custom_trims/chainmail_chestplate_bone_trim",
+      "model": "more_armor_trim:item/chainmail_chestplate_bone_trim",
       "predicate": {
         "trim_type": 0.02
       }
     },
     {
-      "model": "minecraft:item/custom_trims/chainmail_chestplate_coal_trim",
+      "model": "more_armor_trim:item/chainmail_chestplate_coal_trim",
       "predicate": {
         "trim_type": 0.03
       }
     },
     {
-      "model": "minecraft:item/custom_trims/chainmail_chestplate_dragon_breath_trim",
+      "model": "more_armor_trim:item/chainmail_chestplate_dragon_breath_trim",
       "predicate": {
         "trim_type": 0.04
       }
     },
     {
-      "model": "minecraft:item/custom_trims/chainmail_chestplate_echo_shard_trim",
+      "model": "more_armor_trim:item/chainmail_chestplate_echo_shard_trim",
       "predicate": {
         "trim_type": 0.05
       }
     },
     {
-      "model": "minecraft:item/custom_trims/chainmail_chestplate_end_crystal_trim",
+      "model": "more_armor_trim:item/chainmail_chestplate_end_crystal_trim",
       "predicate": {
         "trim_type": 0.06
       }
     },
     {
-      "model": "minecraft:item/custom_trims/chainmail_chestplate_ender_pearl_trim",
+      "model": "more_armor_trim:item/chainmail_chestplate_ender_pearl_trim",
       "predicate": {
         "trim_type": 0.07
       }
     },
     {
-      "model": "minecraft:item/custom_trims/chainmail_chestplate_experience_bottle_trim",
+      "model": "more_armor_trim:item/chainmail_chestplate_experience_bottle_trim",
       "predicate": {
         "trim_type": 0.08
       }
     },
     {
-      "model": "minecraft:item/custom_trims/chainmail_chestplate_fire_charge_trim",
+      "model": "more_armor_trim:item/chainmail_chestplate_fire_charge_trim",
       "predicate": {
         "trim_type": 0.09
       }
@@ -62,55 +62,55 @@
       }
     },
     {
-      "model": "minecraft:item/custom_trims/chainmail_chestplate_glow_ink_trim",
+      "model": "more_armor_trim:item/chainmail_chestplate_glow_ink_trim",
       "predicate": {
         "trim_type": 0.11
       }
     },
     {
-      "model": "minecraft:item/custom_trims/chainmail_chestplate_glowstone_trim",
+      "model": "more_armor_trim:item/chainmail_chestplate_glowstone_trim",
       "predicate": {
         "trim_type": 0.12
       }
     },
     {
-      "model": "minecraft:item/custom_trims/chainmail_chestplate_gunpowder_trim",
+      "model": "more_armor_trim:item/chainmail_chestplate_gunpowder_trim",
       "predicate": {
         "trim_type": 0.13
       }
     },
 	  {
-      "model": "minecraft:item/custom_trims/chainmail_chestplate_heart_of_the_sea_trim",
+      "model": "more_armor_trim:item/chainmail_chestplate_heart_of_the_sea_trim",
       "predicate": {
         "trim_type": 0.14
       }
     },
     {
-      "model": "minecraft:item/custom_trims/chainmail_chestplate_rabbit_hide_trim",
+      "model": "more_armor_trim:item/chainmail_chestplate_rabbit_hide_trim",
       "predicate": {
         "trim_type": 0.15
       }
     },
     {
-      "model": "minecraft:item/custom_trims/chainmail_chestplate_honeycomb_trim",
+      "model": "more_armor_trim:item/chainmail_chestplate_honeycomb_trim",
       "predicate": {
         "trim_type": 0.16
       }
     },
     {
-      "model": "minecraft:item/custom_trims/chainmail_chestplate_leather_trim",
+      "model": "more_armor_trim:item/chainmail_chestplate_leather_trim",
       "predicate": {
         "trim_type": 0.17
       }
     },
     {
-      "model": "minecraft:item/custom_trims/chainmail_chestplate_nautilus_trim",
+      "model": "more_armor_trim:item/chainmail_chestplate_nautilus_trim",
       "predicate": {
         "trim_type": 0.18
       }
     },
     {
-      "model": "minecraft:item/custom_trims/chainmail_chestplate_nether_star_trim",
+      "model": "more_armor_trim:item/chainmail_chestplate_nether_star_trim",
       "predicate": {
         "trim_type": 0.19
       }
@@ -122,55 +122,55 @@
       }
     },
     {
-      "model": "minecraft:item/custom_trims/chainmail_chestplate_nether_brick_trim",
+      "model": "more_armor_trim:item/chainmail_chestplate_nether_brick_trim",
       "predicate": {
         "trim_type": 0.21
       }
     },
     {
-      "model": "minecraft:item/custom_trims/chainmail_chestplate_netherite_scrap_trim",
+      "model": "more_armor_trim:item/chainmail_chestplate_netherite_scrap_trim",
       "predicate": {
         "trim_type": 0.22
       }
     },
     {
-      "model": "minecraft:item/custom_trims/chainmail_chestplate_phantom_membrane_trim",
+      "model": "more_armor_trim:item/chainmail_chestplate_phantom_membrane_trim",
       "predicate": {
         "trim_type": 0.23
       }
     },
     {
-      "model": "minecraft:item/custom_trims/chainmail_chestplate_prismarine_trim",
+      "model": "more_armor_trim:item/chainmail_chestplate_prismarine_trim",
       "predicate": {
         "trim_type": 0.24
       }
     },
     {
-      "model": "minecraft:item/custom_trims/chainmail_chestplate_prismarine_crystals_trim",
+      "model": "more_armor_trim:item/chainmail_chestplate_prismarine_crystals_trim",
       "predicate": {
         "trim_type": 0.25
       }
     },
     {
-      "model": "minecraft:item/custom_trims/chainmail_chestplate_purpur_trim",
+      "model": "more_armor_trim:item/chainmail_chestplate_purpur_trim",
       "predicate": {
         "trim_type": 0.26
       }
     },
     {
-      "model": "minecraft:item/custom_trims/chainmail_chestplate_turtle_scute_trim",
+      "model": "more_armor_trim:item/chainmail_chestplate_turtle_scute_trim",
       "predicate": {
         "trim_type": 0.27
       }
     },
     {
-      "model": "minecraft:item/custom_trims/chainmail_chestplate_slime_trim",
+      "model": "more_armor_trim:item/chainmail_chestplate_slime_trim",
       "predicate": {
         "trim_type": 0.28
       }
     },
     {
-      "model": "minecraft:item/custom_trims/chainmail_chestplate_breeze_rod_trim",
+      "model": "more_armor_trim:item/chainmail_chestplate_breeze_rod_trim",
       "predicate": {
         "trim_type": 0.29
       }
@@ -182,7 +182,7 @@
       }
     },
     {
-      "model": "minecraft:item/custom_trims/chainmail_chestplate_armadillo_scute_trim",
+      "model": "more_armor_trim:item/chainmail_chestplate_armadillo_scute_trim",
       "predicate": {
         "trim_type": 0.31
       }
