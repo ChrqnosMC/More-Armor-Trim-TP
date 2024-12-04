@@ -26,10 +26,5 @@
   "trim_material.more_armor_trim.purpur": "Purpur Material",
   "trim_material.more_armor_trim.rabbit_hide": "Rabbit Hide Material",
   "trim_material.more_armor_trim.slime": "Slime Material",
-	"trim_material.more_armor_trim.turtle_scute": "Turtle Scute Material",
-  "item.more_armor_trim.dreaming_bottle1": "Dreaming (20:00)",
-  "item.more_armor_trim.dreaming_bottle2": "Dreaming II (40:00)",
-  "item.more_armor_trim.dreaming_bottle3": "Dreaming III (1:00:00)",
-  "item.more_armor_trim.dreaming_bottle4": "Dreaming IV (1:20:00)",
-  "item.more_armor_trim.dreaming_bottle5": "Dreaming V (1:40:00)"
+	"trim_material.more_armor_trim.turtle_scute": "Turtle Scute Material"
 }
