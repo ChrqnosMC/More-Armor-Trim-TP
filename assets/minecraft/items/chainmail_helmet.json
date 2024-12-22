@@ -80,201 +80,201 @@
           "when": "minecraft:resin"
         },
         {
-            "model": {
-              "type": "minecraft:model",
-              "model": "more_armor_trim:item/chainmail_helmet_armadillo_scute_trim"
-            },
-            "when": "minecraft:armadillo_scute"
+          "model": {
+            "type": "minecraft:model",
+            "model": "more_armor_trim:item/chainmail_helmet_armadillo_scute_trim"
           },
-          {
-            "model": {
-              "type": "minecraft:model",
-              "model": "more_armor_trim:item/chainmail_helmet_blaze_rod_trim"
-            },
-            "when": "minecraft:blaze_rod"
+          "when": "more_armor_trim:armadillo_scute"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "more_armor_trim:item/chainmail_helmet_blaze_rod_trim"
           },
-          {
-            "model": {
-              "type": "minecraft:model",
-              "model": "more_armor_trim:item/chainmail_helmet_bone_trim"
-            },
-            "when": "minecraft:bone"
+          "when": "more_armor_trim:blaze_rod"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "more_armor_trim:item/chainmail_helmet_bone_trim"
           },
-          {
-            "model": {
-              "type": "minecraft:model",
-              "model": "more_armor_trim:item/chainmail_helmet_breeze_rod_trim"
-            },
-            "when": "minecraft:breeze_rod"
+          "when": "more_armor_trim:bone"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "more_armor_trim:item/chainmail_helmet_breeze_rod_trim"
           },
-          {
-            "model": {
-              "type": "minecraft:model",
-              "model": "more_armor_trim:item/chainmail_helmet_coal_trim"
-            },
-            "when": "minecraft:coal"
+          "when": "more_armor_trim:breeze_rod"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "more_armor_trim:item/chainmail_helmet_coal_trim"
           },
-          {
-            "model": {
-              "type": "minecraft:model",
-              "model": "more_armor_trim:item/chainmail_helmet_dragon_breath_trim"
-            },
-            "when": "minecraft:dragon_breath"
+          "when": "more_armor_trim:coal"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "more_armor_trim:item/chainmail_helmet_dragon_breath_trim"
           },
-          {
-            "model": {
-              "type": "minecraft:model",
-              "model": "more_armor_trim:item/chainmail_helmet_echo_shard_trim"
-            },
-            "when": "minecraft:echo_shard"
+          "when": "more_armor_trim:dragon_breath"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "more_armor_trim:item/chainmail_helmet_echo_shard_trim"
           },
-          {
-            "model": {
-              "type": "minecraft:model",
-              "model": "more_armor_trim:item/chainmail_helmet_end_crystal_trim"
-            },
-            "when": "minecraft:end_crystal"
+          "when": "more_armor_trim:echo_shard"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "more_armor_trim:item/chainmail_helmet_end_crystal_trim"
           },
-          {
-            "model": {
-              "type": "minecraft:model",
-              "model": "more_armor_trim:item/chainmail_helmet_ender_pearl_trim"
-            },
-            "when": "minecraft:ender_pearl"
+          "when": "more_armor_trim:end_crystal"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "more_armor_trim:item/chainmail_helmet_ender_pearl_trim"
           },
-          {
-            "model": {
-              "type": "minecraft:model",
-              "model": "more_armor_trim:item/chainmail_helmet_experience_bottle_trim"
-            },
-            "when": "minecraft:experience_bottle"
+          "when": "more_armor_trim:ender_pearl"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "more_armor_trim:item/chainmail_helmet_experience_bottle_trim"
           },
-          {
-            "model": {
-              "type": "minecraft:model",
-              "model": "more_armor_trim:item/chainmail_helmet_fire_charge_trim"
-            },
-            "when": "minecraft:fire_charge"
+          "when": "more_armor_trim:experience_bottle"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "more_armor_trim:item/chainmail_helmet_fire_charge_trim"
           },
-          {
-            "model": {
-              "type": "minecraft:model",
-              "model": "more_armor_trim:item/chainmail_helmet_glow_ink_trim"
-            },
-            "when": "minecraft:glow_ink"
+          "when": "more_armor_trim:fire_charge"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "more_armor_trim:item/chainmail_helmet_glow_ink_trim"
           },
-          {
-            "model": {
-              "type": "minecraft:model",
-              "model": "more_armor_trim:item/chainmail_helmet_glowstone_trim"
-            },
-            "when": "minecraft:glowstone"
+          "when": "more_armor_trim:glow_ink"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "more_armor_trim:item/chainmail_helmet_glowstone_trim"
           },
-          {
-            "model": {
-              "type": "minecraft:model",
-              "model": "more_armor_trim:item/chainmail_helmet_gunpowder_trim"
-            },
-            "when": "minecraft:gunpowder"
+          "when": "more_armor_trim:glowstone"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "more_armor_trim:item/chainmail_helmet_gunpowder_trim"
           },
-          {
-            "model": {
-              "type": "minecraft:model",
-              "model": "more_armor_trim:item/chainmail_helmet_heart_of_the_sea_trim"
-            },
-            "when": "minecraft:heart_of_the_sea"
+          "when": "more_armor_trim:gunpowder"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "more_armor_trim:item/chainmail_helmet_heart_of_the_sea_trim"
           },
-          {
-            "model": {
-              "type": "minecraft:model",
-              "model": "more_armor_trim:item/chainmail_helmet_honeycomb_trim"
-            },
-            "when": "minecraft:honeycomb"
+          "when": "more_armor_trim:heart_of_the_sea"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "more_armor_trim:item/chainmail_helmet_honeycomb_trim"
           },
-          {
-            "model": {
-              "type": "minecraft:model",
-              "model": "more_armor_trim:item/chainmail_helmet_leather_trim"
-            },
-            "when": "minecraft:leather"
+          "when": "more_armor_trim:honeycomb"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "more_armor_trim:item/chainmail_helmet_leather_trim"
           },
-          {
-            "model": {
-              "type": "minecraft:model",
-              "model": "more_armor_trim:item/chainmail_helmet_nautilus_trim"
-            },
-            "when": "minecraft:nautilus"
+          "when": "more_armor_trim:leather"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "more_armor_trim:item/chainmail_helmet_nautilus_trim"
           },
-          {
-            "model": {
-              "type": "minecraft:model",
-              "model": "more_armor_trim:item/chainmail_helmet_nether_brick_trim"
-            },
-            "when": "minecraft:nether_brick"
+          "when": "more_armor_trim:nautilus"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "more_armor_trim:item/chainmail_helmet_nether_brick_trim"
           },
-          {
-            "model": {
-              "type": "minecraft:model",
-              "model": "more_armor_trim:item/chainmail_helmet_nether_star_trim"
-            },
-            "when": "minecraft:nether_star"
+          "when": "more_armor_trim:nether_brick"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "more_armor_trim:item/chainmail_helmet_nether_star_trim"
           },
-          {
-            "model": {
-              "type": "minecraft:model",
-              "model": "more_armor_trim:item/chainmail_helmet_netherite_scrap_trim"
-            },
-            "when": "minecraft:netherite_scrap"
+          "when": "more_armor_trim:nether_star"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "more_armor_trim:item/chainmail_helmet_netherite_scrap_trim"
           },
-          {
-            "model": {
-              "type": "minecraft:model",
-              "model": "more_armor_trim:item/chainmail_helmet_phantom_membrane_trim"
-            },
-            "when": "minecraft:phantom_membrane"
+          "when": "more_armor_trim:netherite_scrap"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "more_armor_trim:item/chainmail_helmet_phantom_membrane_trim"
           },
-          {
-            "model": {
-              "type": "minecraft:model",
-              "model": "more_armor_trim:item/chainmail_helmet_prismarine_trim"
-            },
-            "when": "minecraft:prismarine"
+          "when": "more_armor_trim:phantom_membrane"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "more_armor_trim:item/chainmail_helmet_prismarine_trim"
           },
-          {
-            "model": {
-              "type": "minecraft:model",
-              "model": "more_armor_trim:item/chainmail_helmet_prismarine_crystals_trim"
-            },
-            "when": "minecraft:prismarine_crystals"
+          "when": "more_armor_trim:prismarine"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "more_armor_trim:item/chainmail_helmet_prismarine_crystals_trim"
           },
-          {
-            "model": {
-              "type": "minecraft:model",
-              "model": "more_armor_trim:item/chainmail_helmet_purpur_trim"
-            },
-            "when": "minecraft:purpur"
+          "when": "more_armor_trim:prismarine_crystals"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "more_armor_trim:item/chainmail_helmet_purpur_trim"
           },
-          {
-            "model": {
-              "type": "minecraft:model",
-              "model": "more_armor_trim:item/chainmail_helmet_rabbit_hide_trim"
-            },
-            "when": "minecraft:rabbit_hide"
+          "when": "more_armor_trim:purpur"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "more_armor_trim:item/chainmail_helmet_rabbit_hide_trim"
           },
-          {
-            "model": {
-              "type": "minecraft:model",
-              "model": "more_armor_trim:item/chainmail_helmet_slime_trim"
-            },
-            "when": "minecraft:slime"
+          "when": "more_armor_trim:rabbit_hide"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "more_armor_trim:item/chainmail_helmet_slime_trim"
           },
-          {
-            "model": {
-              "type": "minecraft:model",
-              "model": "more_armor_trim:item/chainmail_helmet_turtle_scute_trim"
-            },
-            "when": "minecraft:turtle_scute"
-          }
+          "when": "more_armor_trim:slime"
+        },
+        {
+          "model": {
+            "type": "minecraft:model",
+            "model": "more_armor_trim:item/chainmail_helmet_turtle_scute_trim"
+          },
+          "when": "more_armor_trim:turtle_scute"
+        }
       ],
       "fallback": {
         "type": "minecraft:model",
