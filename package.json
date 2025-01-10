@@ -1,0 +1,17 @@
+{
+    "name": "more-armor-trim-tp",
+    "version": "1.0.0",
+    "description": "Resourcepack that works with More Armor Trim DP",
+    "main": "index.js",
+    "scripts": {
+      "generate": "tsx generator/index.ts"
+    },
+    "author": "",
+    "license": "ISC",
+    "dependencies": {
+      "tsx": "^4.19.1"
+    },
+    "devDependencies": {
+      "@types/node": "^22.6.1"
+    }
+  }
