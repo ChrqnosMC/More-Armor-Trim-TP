@@ -1,5 +1,8 @@
 {
   "parent": "minecraft:item/generated",
+  "textures": {
+    "layer0": "minecraft:item/netherite_chestplate"
+  },
   "overrides": [
     {
       "model": "more_armor_trim:item/netherite_chestplate_blaze_rod_trim",
@@ -79,7 +82,7 @@
         "trim_type": 0.13
       }
     },
-	  {
+    {
       "model": "more_armor_trim:item/netherite_chestplate_heart_of_the_sea_trim",
       "predicate": {
         "trim_type": 0.14
@@ -115,7 +118,7 @@
         "trim_type": 0.19
       }
     },
-	  {
+    {
       "model": "minecraft:item/netherite_chestplate_iron_trim",
       "predicate": {
         "trim_type": 0.2
@@ -176,7 +179,7 @@
       }
     },
     {
-      "model": "minecraft:item/netherite_chestplate_netherite_darker_trim",
+      "model": "minecraft:item/netherite_chestplate_netherite_trim",
       "predicate": {
         "trim_type": 0.3
       }
@@ -229,8 +232,5 @@
         "trim_type": 1.0
       }
     }
-  ],
-  "textures": {
-    "layer0": "minecraft:item/netherite_chestplate"
-  }
+  ]
 }
