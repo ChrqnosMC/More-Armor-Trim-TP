@@ -2,6 +2,6 @@
   "parent": "minecraft:item/generated",
   "textures": {
     "layer0": "minecraft:item/turtle_helmet",
-    "layer1": "minecraft:trims/items/helmet_trim_bone"
+    "layer1": "more_armor_trim:trims/items/helmet_trim_bone"
   }
 }
