@@ -27,7 +27,7 @@ jobs:
           name: ${{env.name}}-${{env.tag}}
           path: src
       - name: Create zip file
-        run: zip -r ${{env.name}}-${{env.tag}}.zip . -x ".git/*" ".github/*" ".gitattributes" "supported_versions.txt"
+        run: zip -r ${{env.name}}-${{env.tag}}.zip . -x ".git/*" ".github/*" ".gitattributes" "supported_versions.txt" ".gitignore" "package-lock.json" "package.json" "generator/*"
         working-directory: src
       - name: Read supported versions
         uses: andstor/file-reader-action@v1
