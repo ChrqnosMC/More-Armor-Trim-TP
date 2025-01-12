@@ -2,6 +2,6 @@
   "parent": "minecraft:item/generated",
   "textures": {
     "layer0": "minecraft:item/netherite_boots",
-    "layer1": "more_armor_trim:trims/items/boots_trim_rabbit_hide"
+    "layer1": "minecraft:trims/items/boots_trim_rabbit_hide"
   }
 }
