@@ -2,6 +2,6 @@
   "parent": "minecraft:item/generated",
   "textures": {
     "layer0": "minecraft:item/chainmail_leggings",
-    "layer1": "more_armor_trim:trims/items/leggings_trim_prismarine_crystals"
+    "layer1": "minecraft:trims/items/leggings_trim_prismarine_crystals"
   }
 }
