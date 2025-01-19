@@ -4,7 +4,7 @@
     "description": "Resourcepack that works with More Armor Trim DP",
     "main": "index.js",
     "scripts": {
-      "generate": "tsx generator/index.ts"
+      "generate": "tsx generator/main.ts"
     },
     "author": "",
     "license": "ISC",
