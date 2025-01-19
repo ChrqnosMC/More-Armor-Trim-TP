@@ -76,6 +76,15 @@ async function writeItemModels() {
   
   await mkdir(`./generator/output/assets/minecraft/items`, { recursive: true })
 
+  const leatherFallback = {
+    tints: [
+      {
+        type: `minecraft:dye`,
+        default: -6265536
+      }
+    ]
+  }
+
   for (const armor of armors) {
     let [armorMaterial, armorName] = armor.split('_')
 
@@ -90,7 +99,8 @@ async function writeItemModels() {
         customModelDataCases.push({
         model: {
           type: `minecraft:model`,
-          model: materialIndex < 11 ? `minecraft:item/${armor}_${material}_trim` : `more_armor_trim:item/${armor}_${material}_trim`
+          model: materialIndex < 11 ? `minecraft:item/${armor}_${material}_trim` : `more_armor_trim:item/${armor}_${material}_trim`,
+          ...(armorMaterial === 'leather' ? leatherFallback : {})
         },
         when: materialIndex < 11 ? `minecraft:${material}` : `more_armor_trim:${material}`
       })
@@ -103,7 +113,8 @@ async function writeItemModels() {
         cases: customModelDataCases,
         fallback: {
           type: `minecraft:model`,
-          model: `minecraft:item/${armor}`
+          model: `minecraft:item/${armor}`,
+          ...(armorMaterial === 'leather' ? leatherFallback : {})
         },
         property: `minecraft:trim_material`
       }
