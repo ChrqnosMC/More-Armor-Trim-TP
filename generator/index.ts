@@ -86,31 +86,29 @@ async function writeItemModels() {
     
     const customModelDataCases: { model: { type: string, model: string }, when: string }[] = []
 
-    for (const armor of armors) {
-      for (const [materialIndex, material] of materials.entries()) {
-          customModelDataCases.push({
-          model: {
-            type: `minecraft:model`,
-            model: materialIndex < 11 ? `minecraft:item/${armor}_${material}_trim` : `more_armor_trim:item/${armor}_${material}_trim`
-          },
-          when: materialIndex < 11 ? `minecraft:${material}` : `more_armor_trim:${material}`
-        })
-      }
-
-      const armorFile = `./generator/output/assets/minecraft/items/${armor}.json`
-      const armorContents = {
+    for (const [materialIndex, material] of materials.entries()) {
+        customModelDataCases.push({
         model: {
-          type: 'minecraft:select',
-          cases: customModelDataCases,
-          fallback: {
-            type: `minecraft:model`,
-            model: `minecraft:item/${armor}`
-          },
-          property: `minecraft:trim_material`
-        }
-      }
-      promises.push(writeFile(armorFile, JSON.stringify(armorContents, null, 2)))
+          type: `minecraft:model`,
+          model: materialIndex < 11 ? `minecraft:item/${armor}_${material}_trim` : `more_armor_trim:item/${armor}_${material}_trim`
+        },
+        when: materialIndex < 11 ? `minecraft:${material}` : `more_armor_trim:${material}`
+      })
     }
+
+    const armorFile = `./generator/output/assets/minecraft/items/${armor}.json`
+    const armorContents = {
+      model: {
+        type: 'minecraft:select',
+        cases: customModelDataCases,
+        fallback: {
+          type: `minecraft:model`,
+          model: `minecraft:item/${armor}`
+        },
+        property: `minecraft:trim_material`
+      }
+    }
+    promises.push(writeFile(armorFile, JSON.stringify(armorContents, null, 2)))
   }
 
   return Promise.all(promises)
