@@ -1,0 +1,32 @@
+{
+  "pack": {
+    "pack_format": 63,
+    "supported_formats": [34,63],
+    "description": "More Armor Trim"
+  },
+	"overlays": {
+		"entries": [
+			{
+				"formats": {
+					"min_inclusive": 34,
+					"max_inclusive": 36
+				},
+				"directory": "overlay_34"
+			},
+			{
+				"formats": {
+					"min_inclusive": 37,
+					"max_inclusive": 43
+				},
+				"directory": "overlay_37"
+			},
+			{
+				"formats": {
+					"min_inclusive": 44,
+					"max_inclusive": 63
+				},
+				"directory": "overlay_44"
+			}
+    ]
+  }
+}
