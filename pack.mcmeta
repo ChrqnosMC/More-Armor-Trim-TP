@@ -1,32 +1,37 @@
 {
-  "pack": {
-    "pack_format": 64,
-    "supported_formats": [34,64],
-    "description": "More Armor Trim"
-  },
+	"pack": {
+		"pack_format": 64,
+		"supported_formats": [34,69],
+		"min_format": [34,0],
+		"max_format": [69,0],
+		"description": "More Armor Trim"
+	},
 	"overlays": {
 		"entries": [
 			{
-				"formats": {
-					"min_inclusive": 34,
-					"max_inclusive": 36
-				},
+				"formats": [34,36],
+				"min_format": [34,0],
+				"max_format": [36,0],
 				"directory": "overlay_34"
 			},
 			{
-				"formats": {
-					"min_inclusive": 37,
-					"max_inclusive": 43
-				},
+				"formats": [37,43],
+				"min_format": [37,0],
+				"max_format": [43,0],
 				"directory": "overlay_37"
 			},
 			{
-				"formats": {
-					"min_inclusive": 44,
-					"max_inclusive": 64
-				},
+				"formats": [44,69],
+				"min_format": [44,0],
+				"max_format": [69,0],
 				"directory": "overlay_44"
+			},
+			{
+				"formats": [65,69],
+				"min_format": [65,0],
+				"max_format": [69,0],
+				"directory": "overlay_65"
 			}
-    ]
-  }
+		]
+	}
 }
