@@ -17,7 +17,7 @@ const trim_list = [
 ]
 const armor_list = ['chestplate', 'boots', 'helmet', 'leggings']
 const tool_list = ['axe', 'hoe', 'pickaxe', 'shovel', 'spear', 'spear_in_hand', 'sword']
-const armor_material_list = ['netherite', 'chainmail', 'copper', 'diamond', 'golden', 'iron', 'leather', 'turtle_shell']
+const armor_material_list = ['netherite', 'chainmail', 'copper', 'diamond', 'golden', 'iron', 'leather', 'turtle']
 const tool_material_list = ['copper', 'diamond', 'golden', 'iron', 'netherite', 'stone', 'wooden']
 
 const palette_list = fs.readdirSync(PALETTE_PATH).map(file => path.parse(file).name)
@@ -147,9 +147,9 @@ async function run() {
   for (const armor of armor_list) {
     for (const material of armor_material_list) {
       const key = `${material}_${armor}`
-      if (material === 'turtle_shell' && armor !== 'helmet') continue
+      if (material === 'turtle' && armor !== 'helmet') continue
       try {
-        const buf = material === 'turtle_shell'
+        const buf = material === 'turtle'
           ? loadFile(path.join(ITEM_TEXTURE_PATH, 'turtle_helmet.png'))
           : loadFile(path.join(ITEM_TEXTURE_PATH, `${material}_armor/${material}_${armor}.png`))
         itemBufferMap.set(key, buf)
@@ -211,7 +211,7 @@ async function run() {
         const recoloredTrimPixels = await paletteCache.get(armor)
 
         for (const material of armor_material_list) {
-          if (armor !== 'helmet' && material === 'turtle_shell') continue
+          if (armor !== 'helmet' && material === 'turtle') continue
 
           const isDarker = palette.endsWith('_darker')
           if (isDarker && !palette.startsWith(material)) continue
