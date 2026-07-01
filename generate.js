@@ -143,12 +143,12 @@ async function run() {
   }))
 
   const itemBufferMap = new Map()
-  
+
   for (const armor of armor_list) {
     for (const material of armor_material_list) {
       const key = `${material}_${armor}`
       if (material === 'turtle_shell' && armor !== 'helmet') continue
-            try {
+      try {
         const buf = material === 'turtle_shell'
           ? loadFile(path.join(ITEM_TEXTURE_PATH, 'turtle_helmet.png'))
           : loadFile(path.join(ITEM_TEXTURE_PATH, `${material}_armor/${material}_${armor}.png`))
@@ -226,6 +226,7 @@ async function run() {
             const finalBuffer = await compositeAndEncode(recoloredTrimPixels, itemBuffer, width, height)
             saveGeneratedTexture(finalBuffer, material, armor, trim, palette)
             generateJsonModel(trim, palette, armor, material)
+            showProgression()
           })
         }
       }
@@ -256,13 +257,22 @@ async function run() {
             const finalBuffer = await compositeAndEncode(recoloredTrimPixels, itemBuffer, width, height)
             saveGeneratedTexture(finalBuffer, material, tool, trim, palette)
             generateJsonModel(trim, palette, tool, material)
+            showProgression()
           })
         }
       }
     }
   }
 
+  const showProgression = () => {
+    completedTasks++
+    if (completedTasks === 0) return
+    if (completedTasks % 100 > 0) return
+    console.log(`Progression: ${completedTasks}/${tasks.length}`)
+  }
+
   console.log(`Génération de ${tasks.length} textures et modèles...`)
+  let completedTasks = 0
   await runConcurrent(tasks, CONCURRENCY_LIMIT)
   console.log('Génération terminée.')
 }
