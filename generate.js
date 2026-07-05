@@ -215,7 +215,7 @@ async function run() {
 
           const isDarker = palette.endsWith('_darker')
           if (isDarker && !palette.startsWith(material)) continue
-          if (!isDarker && palette === material) continue
+          if (!isDarker && palette === material && palette !== 'leather') continue
 
           const itemKey = `${material}_${armor}`
           const itemBuffer = itemBufferMap.get(itemKey)
