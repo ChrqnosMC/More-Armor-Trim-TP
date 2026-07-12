@@ -7,6 +7,8 @@ const PALETTE_TEMPLATE_PATH = path.join(__dirname, 'textures/trims/color_palette
 const TRIM_TEXTURE_PATH = path.join(__dirname, 'textures/trims/items')
 const ITEM_TEXTURE_PATH = path.join(__dirname, 'textures/item')
 const GENERATED_MODELS_OUTPUT_PATH = path.join(__dirname, 'generated_models')
+const GENERATED_RECIPES_OUTPUT_PATH = path.join(__dirname, 'generated_recipes')
+const GENERATED_RECIPES2_OUTPUT_PATH = path.join(__dirname, 'generated_recipes2')
 const GENERATED_TEXTURE_OUTPUT_PATH = path.join(__dirname, 'generated_textures')
 
 const CONCURRENCY_LIMIT = 16
@@ -21,8 +23,56 @@ const armor_material_list = ['netherite', 'chainmail', 'copper', 'diamond', 'gol
 const tool_material_list = ['copper', 'diamond', 'golden', 'iron', 'netherite', 'stone', 'wooden']
 
 const palette_list = fs.readdirSync(PALETTE_PATH).map(file => path.parse(file).name)
+const palette_ids = {
+  'amethyst': 'amethyst_shard',
+  'armadillo_scute': 'armadillo_scute',
+  'blaze_rod': 'blaze_rod',
+  'bone': 'bone',
+  'breeze_rod': 'breeze_rod',
+  'coal': 'coal',
+  'copper_darker': 'copper_ingot',
+  'copper': 'copper_ingot',
+  'diamond_darker': 'diamond',
+  'diamond': 'diamond',
+  'dragon_breath': 'dragon_breath',
+  'echo_shard': 'echo_shard',
+  'emerald': 'emerald',
+  'end_crystal': 'end_crystal',
+  'ender_pearl': 'ender_pearl',
+  'experience_bottle': 'experience_bottle',
+  'fire_charge': 'fire_charge',
+  'glow_ink': 'glow_ink_sac',
+  'glowstone': 'glowstone_dust',
+  'gold_darker': 'gold_ingot',
+  'gold': 'gold_ingot',
+  'gunpowder': 'gunpowder',
+  'heart_of_the_sea': 'heart_of_the_sea',
+  'honeycomb': 'honeycomb',
+  'iron_darker': 'iron_ingot',
+  'iron': 'iron_ingot',
+  'lapis': 'lapis_lazuli',
+  'leather': 'leather',
+  'nautilus': 'nautilus_shell',
+  'nether_brick': 'nether_brick',
+  'nether_star': 'nether_star',
+  'netherite_darker': 'netherite_ingot',
+  'netherite_scrap': 'netherite_scrap',
+  'netherite': 'netherite_ingot',
+  'phantom_membrane': 'phantom_membrane',
+  'prismarine_crystals': 'prismarine_crystals',
+  'prismarine_shard': 'prismarine_shard',
+  'purpur': 'popped_chorus_fruit',
+  'quartz': 'quartz',
+  'rabbit_hide': 'rabbit_hide',
+  'redstone': 'redstone',
+  'resin': 'resin_brick',
+  'slime': 'slime_ball',
+  'turtle_scute': 'turtle_scute'
+}
 
 fs.mkdirSync(GENERATED_MODELS_OUTPUT_PATH, { recursive: true })
+fs.mkdirSync(GENERATED_RECIPES_OUTPUT_PATH, { recursive: true })
+fs.mkdirSync(GENERATED_RECIPES2_OUTPUT_PATH, { recursive: true })
 fs.mkdirSync(GENERATED_TEXTURE_OUTPUT_PATH, { recursive: true })
 
 function loadFile(filePath) {
@@ -48,16 +98,76 @@ function buildPaletteIndexMap(templatePixels, channels) {
   return paletteIndexMap
 }
 
+// Nettoie le nom de la palette pour le nom du fichier (retire _darker)
+function getCleanPaletteName(palette) {
+  return palette.endsWith('_darker') ? palette.replace('_darker', '') : palette;
+}
+
 function generateJsonModel(trim, palette, item, material) {
+  const cleanPalette = getCleanPaletteName(palette)
   const model = {
     parent: 'minecraft:item/generated',
     textures: {
-      layer0: `minecraft:item/${material}_${item}_${trim}_trim_${palette}`
+      layer0: `minecraft:item/${material}_${item}_${trim}_trim_${cleanPalette}`
     }
   }
-  const outputPath = path.join(GENERATED_MODELS_OUTPUT_PATH, `${material}_${item}_${trim}_trim_${palette}.json`)
+  const outputPath = path.join(GENERATED_MODELS_OUTPUT_PATH, `${material}_${item}_${trim}_trim_${cleanPalette}.json`)
   fs.mkdirSync(path.dirname(outputPath), { recursive: true })
   fs.writeFileSync(outputPath, JSON.stringify(model, null, 2))
+}
+
+function generateFirstRecipe(trim, trim_index, palette, palette_item, item, material) {
+  const cleanPalette = getCleanPaletteName(palette)
+  const recipe = {
+    type: 'minecraft:smithing_transform',
+    base: {
+      item: `minecraft:${material}_${item}`
+    },
+    addition: {
+      item: `minecraft:${palette_item}`
+    },
+    template: {
+      item: `minecraft:${trim}_armor_trim_smithing_template`
+    },
+    result: {
+      id: `minecraft:${material}_${item}`,
+      components: {
+        'minecraft:trim': {
+          material: `minecraft:${cleanPalette}`, // Suffixe _darker retiré ici
+          pattern: `minecraft:${trim}`,
+          show_in_tooltip: true
+        },
+        'minecraft:custom_model_data': trim_index + 1
+      }
+    }
+  }
+  const outputPath = path.join(GENERATED_RECIPES_OUTPUT_PATH, `${material}_${item}_${trim}_trim_${cleanPalette}_smithing.json`)
+  fs.mkdirSync(path.dirname(outputPath), { recursive: true })
+  fs.writeFileSync(outputPath, JSON.stringify(recipe, null, 2))
+}
+
+function generateSecondRecipe(trim, trim_index, palette, palette_item, item, material) {
+  const cleanPalette = getCleanPaletteName(palette)
+  const recipe = {
+    type: 'minecraft:smithing_transform',
+    base: `minecraft:${material}_${item}`,
+    addition: `minecraft:${palette_item}`,
+    template: `minecraft:${trim}_armor_trim_smithing_template`,
+    result: {
+      id: `minecraft:${material}_${item}`,
+      components: {
+        'minecraft:trim': {
+          material: `minecraft:${cleanPalette}`, // Suffixe _darker retiré ici
+          pattern: `minecraft:${trim}`,
+          show_in_tooltip: true
+        },
+        'minecraft:custom_model_data': trim_index + 1 
+      }
+    }
+  }
+  const outputPath = path.join(GENERATED_RECIPES2_OUTPUT_PATH, `${material}_${item}_${trim}_trim_${cleanPalette}_smithing.json`)
+  fs.mkdirSync(path.dirname(outputPath), { recursive: true })
+  fs.writeFileSync(outputPath, JSON.stringify(recipe, null, 2))
 }
 
 async function applyPaletteToTrim(trimRaw, paletteRaw, templateIndexMap) {
@@ -88,7 +198,7 @@ async function applyPaletteToTrim(trimRaw, paletteRaw, templateIndexMap) {
 
 async function compositeAndEncode(trimPixels, itemBuffer, width, height) {
   const { data } = await sharp(itemBuffer).raw().toBuffer({ resolveWithObject: true })
-  const out = Buffer.from(data) // Copie des données de l'item
+  const out = Buffer.from(data)
 
   for (let i = 0; i < trimPixels.length; i += 4) {
     const ta = trimPixels[i + 3]
@@ -126,12 +236,12 @@ async function runConcurrent(tasks, limit) {
 }
 
 function saveGeneratedTexture(textureBuffer, material, item, trim, palette) {
-  const outputPath = path.join(GENERATED_TEXTURE_OUTPUT_PATH, `${material}_${item}_${trim}_trim_${palette}.png`)
+  const cleanPalette = getCleanPaletteName(palette)
+  const outputPath = path.join(GENERATED_TEXTURE_OUTPUT_PATH, `${material}_${item}_${trim}_trim_${cleanPalette}.png`)
   fs.writeFileSync(outputPath, textureBuffer)
 }
 
 async function run() {
-  // Récupère les pixels du modèle de palette de couleurs
   const color_palette_template_buffer = fs.readFileSync(PALETTE_TEMPLATE_PATH)
   const templateRaw = await extractRawPixels(color_palette_template_buffer)
   const templateIndexMap = buildPaletteIndexMap(templateRaw.pixels, templateRaw.channels)
@@ -191,7 +301,6 @@ async function run() {
   console.log(`Chargé ${paletteRawMap.size} palettes, ${itemBufferMap.size} textures d'items et ${trimRawMap.size} textures de trim.`)
 
   const tasks = []
-  const activePalettes = palette_list.filter(p => p !== 'trim_palette')
 
   for (const trim of trim_list) {
     for (const palette of palette_list) {
@@ -226,6 +335,8 @@ async function run() {
             const finalBuffer = await compositeAndEncode(recoloredTrimPixels, itemBuffer, width, height)
             saveGeneratedTexture(finalBuffer, material, armor, trim, palette)
             generateJsonModel(trim, palette, armor, material)
+            generateFirstRecipe(trim, trim_list.indexOf(trim), palette, palette_ids[palette], armor, material)
+            generateSecondRecipe(trim, trim_list.indexOf(trim), palette, palette_ids[palette], armor, material)
             showProgression()
           })
         }
@@ -257,6 +368,8 @@ async function run() {
             const finalBuffer = await compositeAndEncode(recoloredTrimPixels, itemBuffer, width, height)
             saveGeneratedTexture(finalBuffer, material, tool, trim, palette)
             generateJsonModel(trim, palette, tool, material)
+            generateFirstRecipe(trim, trim_list.indexOf(trim), palette, palette_ids[palette], tool, material)
+            generateSecondRecipe(trim, trim_list.indexOf(trim), palette, palette_ids[palette], tool, material)
             showProgression()
           })
         }
