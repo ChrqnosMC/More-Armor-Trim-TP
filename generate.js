@@ -2,9 +2,12 @@ const fs = require('fs')
 const path = require('path')
 const sharp = require('sharp')
 
+const PALETTE_PATH = path.join(__dirname, 'textures/trims/color_palettes')
+const PALETTE_TEMPLATE_PATH = path.join(__dirname, 'textures/trims/color_palettes/trim_palette.png')
 const TRIM_TEXTURE_PATH = path.join(__dirname, 'textures/trims/items')
 const ITEM_TEXTURE_PATH = path.join(__dirname, 'textures/item')
 const GENERATED_MODELS_OUTPUT_PATH = path.join(__dirname, 'generated_models')
+const GENERATED_RECIPES_OUTPUT_PATH = path.join(__dirname, 'generated_recipes')
 const GENERATED_TEXTURE_OUTPUT_PATH = path.join(__dirname, 'generated_textures')
 
 const CONCURRENCY_LIMIT = 16
@@ -18,7 +21,56 @@ const tool_list = ['axe', 'hoe', 'pickaxe', 'shovel', 'spear', 'spear_in_hand', 
 const armor_material_list = ['netherite', 'chainmail', 'copper', 'diamond', 'golden', 'iron', 'leather', 'turtle']
 const tool_material_list = ['copper', 'diamond', 'golden', 'iron', 'netherite', 'stone', 'wooden']
 
+const palette_list = fs.readdirSync(PALETTE_PATH).map(file => path.parse(file).name)
+const palette_ids = {
+  'amethyst': 'amethyst_shard',
+  'armadillo_scute': 'armadillo_scute',
+  'blaze_rod': 'blaze_rod',
+  'bone': 'bone',
+  'breeze_rod': 'breeze_rod',
+  'coal': 'coal',
+  'copper_darker': 'copper_ingot',
+  'copper': 'copper_ingot',
+  'diamond_darker': 'diamond',
+  'diamond': 'diamond',
+  'dragon_breath': 'dragon_breath',
+  'echo_shard': 'echo_shard',
+  'emerald': 'emerald',
+  'end_crystal': 'end_crystal',
+  'ender_pearl': 'ender_pearl',
+  'experience_bottle': 'experience_bottle',
+  'fire_charge': 'fire_charge',
+  'glow_ink': 'glow_ink_sac',
+  'glowstone': 'glowstone_dust',
+  'gold_darker': 'gold_ingot',
+  'gold': 'gold_ingot',
+  'gunpowder': 'gunpowder',
+  'heart_of_the_sea': 'heart_of_the_sea',
+  'honeycomb': 'honeycomb',
+  'iron_darker': 'iron_ingot',
+  'iron': 'iron_ingot',
+  'lapis': 'lapis_lazuli',
+  'leather': 'leather',
+  'nautilus': 'nautilus_shell',
+  'nether_brick': 'nether_brick',
+  'nether_star': 'nether_star',
+  'netherite_darker': 'netherite_ingot',
+  'netherite_scrap': 'netherite_scrap',
+  'netherite': 'netherite_ingot',
+  'phantom_membrane': 'phantom_membrane',
+  'prismarine_crystals': 'prismarine_crystals',
+  'prismarine_shard': 'prismarine_shard',
+  'purpur': 'popped_chorus_fruit',
+  'quartz': 'quartz',
+  'rabbit_hide': 'rabbit_hide',
+  'redstone': 'redstone',
+  'resin': 'resin_brick',
+  'slime': 'slime_ball',
+  'turtle_scute': 'turtle_scute'
+}
+
 fs.mkdirSync(GENERATED_MODELS_OUTPUT_PATH, { recursive: true })
+fs.mkdirSync(GENERATED_RECIPES_OUTPUT_PATH, { recursive: true })
 fs.mkdirSync(GENERATED_TEXTURE_OUTPUT_PATH, { recursive: true })
 
 function loadFile(filePath) {
@@ -28,37 +80,76 @@ function loadFile(filePath) {
   return fs.readFileSync(filePath)
 }
 
-function generateJsonModel(trim, item, material) {
+async function extractRawPixels(imageBuffer) {
+  const { data, info } = await sharp(imageBuffer).raw().toBuffer({ resolveWithObject: true })
+  return { pixels: new Uint8Array(data.buffer), width: info.width, height: info.height, channels: info.channels || 3 }
+}
+
+// Nettoie le nom de la palette pour le nom du fichier (retire _darker)
+function getCleanPaletteName(palette) {
+  return palette.endsWith('_darker') ? palette.replace('_darker', '') : palette;
+}
+
+// Détermine si un matériau de palette est Vanilla (doit utiliser le namespace minecraft)
+function getNamespaceForPalette(palette) {
+  const cleanPalette = getCleanPaletteName(palette);
+  const vanillaMaterials = [
+    'amethyst', 'diamond', 'emerald', 'copper', 'iron', 
+    'gold', 'resin', 'redstone', 'lapis', 'quartz', 'netherite'
+  ];
+  return vanillaMaterials.includes(cleanPalette) ? 'minecraft' : 'more_item_materials';
+}
+
+function generateJsonModel(trim, palette, item, material) {
+  const cleanPalette = getCleanPaletteName(palette)
+  const namespace = getNamespaceForPalette(palette)
+  
   const model = {
     parent: 'minecraft:item/generated',
     textures: {
-      layer0: `minecraft:item/${material}_${item}_${trim}_trim`
+      layer0: `minecraft:item/${material}_${item}_${trim}_trim`,
+      layer1: `${namespace}:trims/items/${item}_trim_${trim}_${cleanPalette}`
     }
   }
-  const outputPath = path.join(GENERATED_MODELS_OUTPUT_PATH, `${material}_${item}_${trim}_trim.json`)
+  const outputPath = path.join(GENERATED_MODELS_OUTPUT_PATH, `${material}_${item}_${trim}_trim_${cleanPalette}.json`)
   fs.mkdirSync(path.dirname(outputPath), { recursive: true })
   fs.writeFileSync(outputPath, JSON.stringify(model, null, 2))
 }
 
-async function compositeAndEncode(trimPixels, itemBuffer, width, height) {
-  const { data } = await sharp(itemBuffer).raw().toBuffer({ resolveWithObject: true })
-  const out = Buffer.from(data) // Copie des données de l'item
+function generateFirstRecipe(trim, trim_index, palette, palette_item, item, material) {
+  const cleanPalette = getCleanPaletteName(palette)
+  const recipe = {
+    type: 'minecraft:smithing_transform',
+    base: {
+      item: `minecraft:${material}_${item}`
+    },
+    addition: {
+      item: `minecraft:${palette_item}`
+    },
+    template: {
+      item: `minecraft:${trim}_armor_trim_smithing_template`
+    },
+    result: {
+      id: `minecraft:${material}_${item}`
+    }
+  }
+  const outputPath = path.join(GENERATED_RECIPES_OUTPUT_PATH, `${material}_${item}_${trim}_trim_${cleanPalette}_smithing.json`)
+  fs.mkdirSync(path.dirname(outputPath), { recursive: true })
+  fs.writeFileSync(outputPath, JSON.stringify(recipe, null, 2))
+}
 
-  for (let i = 0; i < trimPixels.length; i += 4) {
-    const ta = trimPixels[i + 3]
-    if (ta === 0) continue
-    if (ta === 255) {
-      out[i] = trimPixels[i]
-      out[i + 1] = trimPixels[i + 1]
-      out[i + 2] = trimPixels[i + 2]
-      out[i + 3] = 255
-    } else {
-      const ia = out[i + 3]
-      const a = ta / 255
-      out[i] = Math.round(trimPixels[i] * a + out[i] * (1 - a))
-      out[i + 1] = Math.round(trimPixels[i + 1] * a + out[i + 1] * (1 - a))
-      out[i + 2] = Math.round(trimPixels[i + 2] * a + out[i + 2] * (1 - a))
-      out[i + 3] = Math.min(255, ta * ia)
+// Retire les pixels du trim de l'item de base (Soustraction de pixels)
+async function subtractTrimFromItem(itemBuffer, trimRaw, width, height) {
+  const { data } = await sharp(itemBuffer).raw().toBuffer({ resolveWithObject: true })
+  const out = Buffer.from(data)
+  const trimPixels = trimRaw.pixels
+
+  for (let i = 0; i < out.length; i += 4) {
+    const trimAlpha = trimPixels[i + 3]
+    // Si le pixel du trim est visible (non transparent), on le retire de l'item
+    if (trimAlpha > 0) {
+      // Pour une suppression brute, on met l'alpha de l'item de base à 0
+      out[i + 3] = 0
     }
   }
 
@@ -85,9 +176,14 @@ function saveGeneratedTexture(textureBuffer, material, item, trim) {
 }
 
 async function run() {
+  const paletteRawMap = new Map()
+  await Promise.all(palette_list.filter(p => p !== 'trim_palette').map(async palette => {
+    const buf = loadFile(path.join(PALETTE_PATH, `${palette}.png`))
+    paletteRawMap.set(palette, await extractRawPixels(buf))
+  }))
+
   const itemBufferMap = new Map()
 
-  // Chargement des textures d'armures
   for (const armor of armor_list) {
     for (const material of armor_material_list) {
       const key = `${material}_${armor}`
@@ -99,11 +195,11 @@ async function run() {
         itemBufferMap.set(key, buf)
       } catch (err) {
         console.warn(`Warning: Could not load texture for ${key}: ${err.message}`)
+        console.error(err)
       }
     }
   }
 
-  // Chargement des textures d'outils
   for (const tool of tool_list) {
     for (const material of tool_material_list) {
       const key = `${material}_${tool}`
@@ -112,11 +208,11 @@ async function run() {
         itemBufferMap.set(key, buf)
       } catch (err) {
         console.warn(`Warning: Could not load texture for ${key}: ${err.message}`)
+        console.error(err)
       }
     }
   }
 
-  // Chargement des textures de trim (en conservant leurs couleurs d'origine)
   const trimRawMap = new Map()
   const allItems = [...armor_list, ...tool_list]
 
@@ -128,57 +224,86 @@ async function run() {
       trimRawMap.set(key, { pixels: new Uint8Array(data.buffer), width: info.width, height: info.height, channels: 4 })
     } catch (err) {
       console.warn(`Warning: Could not load trim texture for ${key}: ${err.message}`)
+      console.error(err)
     }
   })))
 
-  console.log(`Chargé ${itemBufferMap.size} textures d'items et ${trimRawMap.size} textures de trim.`)
+  console.log(`Chargé ${paletteRawMap.size} palettes, ${itemBufferMap.size} textures d'items et ${trimRawMap.size} textures de trim.`)
 
   const tasks = []
+  const generatedTexturesSet = new Set() // Empêche de régénérer plusieurs fois la même texture d'item "découpé"
 
   for (const trim of trim_list) {
-    // Traitement des armures
-    for (const armor of armor_list) {
-      const trimKey = `${armor}_${trim}`
-      const trimRaw = trimRawMap.get(trimKey)
-      if (!trimRaw) continue
+    for (const palette of palette_list) {
+      const paletteRaw = paletteRawMap.get(palette)
+      if (!paletteRaw) continue
 
-      const { pixels: trimPixels, width, height } = trimRaw
+      // --- TRAITEMENT DES ARMURES ---
+      for (const armor of armor_list) {
+        const trimKey = `${armor}_${trim}`
+        const trimRaw = trimRawMap.get(trimKey)
+        if (!trimRaw) continue
 
-      for (const material of armor_material_list) {
-        if (armor !== 'helmet' && material === 'turtle') continue
+        for (const material of armor_material_list) {
+          if (armor !== 'helmet' && material === 'turtle') continue
 
-        const itemKey = `${material}_${armor}`
-        const itemBuffer = itemBufferMap.get(itemKey)
-        if (!itemBuffer) continue
+          const isDarker = palette.endsWith('_darker')
+          if (isDarker && !palette.startsWith(material)) continue
+          if (!isDarker && palette === material && palette !== 'leather') continue
 
-        tasks.push(async () => {
-          const finalBuffer = await compositeAndEncode(trimPixels, itemBuffer, width, height)
-          saveGeneratedTexture(finalBuffer, material, armor, trim)
-          generateJsonModel(trim, armor, material)
-          showProgression()
-        })
+          const itemKey = `${material}_${armor}`
+          const itemBuffer = itemBufferMap.get(itemKey)
+          if (!itemBuffer) continue
+
+          const { width, height } = trimRaw
+          const textureUniqueKey = `${material}_${armor}_${trim}`
+
+          tasks.push(async () => {
+            // Ne génère la texture que si elle n'a pas déjà été faite (pour une autre palette)
+            if (!generatedTexturesSet.has(textureUniqueKey)) {
+              generatedTexturesSet.add(textureUniqueKey)
+              const finalBuffer = await subtractTrimFromItem(itemBuffer, trimRaw, width, height)
+              saveGeneratedTexture(finalBuffer, material, armor, trim)
+            }
+            
+            generateJsonModel(trim, palette, armor, material)
+            generateFirstRecipe(trim, trim_list.indexOf(trim), palette, palette_ids[palette], armor, material)
+            showProgression()
+          })
+        }
       }
-    }
 
-    // Traitement des outils / armes
-    for (const tool of tool_list) {
-      const trimKey = `${tool}_${trim}`
-      const trimRaw = trimRawMap.get(trimKey)
-      if (!trimRaw) continue
+      // --- TRAITEMENT DES OUTILS ---
+      for (const tool of tool_list) {
+        const trimKey = `${tool}_${trim}`
+        const trimRaw = trimRawMap.get(trimKey)
+        if (!trimRaw) continue
 
-      const { pixels: trimPixels, width, height } = trimRaw
+        for (const material of tool_material_list) {
+          const isDarker = palette.endsWith('_darker')
+          if (isDarker && !palette.startsWith(material)) continue
+          if (!isDarker && palette === material) continue
 
-      for (const material of tool_material_list) {
-        const itemKey = `${material}_${tool}`
-        const itemBuffer = itemBufferMap.get(itemKey)
-        if (!itemBuffer) continue
+          const itemKey = `${material}_${tool}`
+          const itemBuffer = itemBufferMap.get(itemKey)
+          if (!itemBuffer) continue
 
-        tasks.push(async () => {
-          const finalBuffer = await compositeAndEncode(trimPixels, itemBuffer, width, height)
-          saveGeneratedTexture(finalBuffer, material, tool, trim)
-          generateJsonModel(trim, tool, material)
-          showProgression()
-        })
+          const { width, height } = trimRaw
+          const textureUniqueKey = `${material}_${tool}_${trim}`
+
+          tasks.push(async () => {
+            // Ne génère la texture que si elle n'a pas déjà été faite (pour une autre palette)
+            if (!generatedTexturesSet.has(textureUniqueKey)) {
+              generatedTexturesSet.add(textureUniqueKey)
+              const finalBuffer = await subtractTrimFromItem(itemBuffer, trimRaw, width, height)
+              saveGeneratedTexture(finalBuffer, material, tool, trim)
+            }
+            
+            generateJsonModel(trim, palette, tool, material)
+            generateFirstRecipe(trim, trim_list.indexOf(trim), palette, palette_ids[palette], tool, material)
+            showProgression()
+          })
+        }
       }
     }
   }
@@ -190,7 +315,7 @@ async function run() {
     console.log(`Progression: ${completedTasks}/${tasks.length}`)
   }
 
-  console.log(`Génération de ${tasks.length} textures et modèles...`)
+  console.log(`Génération de ${tasks.length} configurations de modèles...`)
   let completedTasks = 0
   await runConcurrent(tasks, CONCURRENCY_LIMIT)
   console.log('Génération terminée.')
