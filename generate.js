@@ -85,12 +85,10 @@ async function extractRawPixels(imageBuffer) {
   return { pixels: new Uint8Array(data.buffer), width: info.width, height: info.height, channels: info.channels || 3 }
 }
 
-// Nettoie le nom de la palette pour le nom du fichier (retire _darker)
 function getCleanPaletteName(palette) {
   return palette.endsWith('_darker') ? palette.replace('_darker', '') : palette;
 }
 
-// Détermine si un matériau de palette est Vanilla (doit utiliser le namespace minecraft)
 function getNamespaceForPalette(palette) {
   const cleanPalette = getCleanPaletteName(palette);
   const vanillaMaterials = [
@@ -111,6 +109,14 @@ function generateJsonModel(trim, palette, item, material) {
       layer1: `${namespace}:trims/items/${item}_trim_${trim}_${cleanPalette}`
     }
   }
+
+  // Si c'est du cuir, l'item a besoin d'une layer d'overlay (layer1 devient layer2, overlay devient layer1)
+  if (material === 'leather') {
+    model.textures.layer0 = `minecraft:item/leather_${item}_${trim}_trim`
+    model.textures.layer1 = `minecraft:item/leather_${item}_overlay_${trim}_trim`
+    model.textures.layer2 = `${namespace}:trims/items/${item}_trim_${trim}_${cleanPalette}`
+  }
+
   const outputPath = path.join(GENERATED_MODELS_OUTPUT_PATH, `${material}_${item}_${trim}_trim_${cleanPalette}.json`)
   fs.mkdirSync(path.dirname(outputPath), { recursive: true })
   fs.writeFileSync(outputPath, JSON.stringify(model, null, 2))
@@ -138,7 +144,6 @@ function generateFirstRecipe(trim, trim_index, palette, palette_item, item, mate
   fs.writeFileSync(outputPath, JSON.stringify(recipe, null, 2))
 }
 
-// Retire les pixels du trim de l'item de base (Soustraction de pixels)
 async function subtractTrimFromItem(itemBuffer, trimRaw, width, height) {
   const { data } = await sharp(itemBuffer).raw().toBuffer({ resolveWithObject: true })
   const out = Buffer.from(data)
@@ -146,9 +151,7 @@ async function subtractTrimFromItem(itemBuffer, trimRaw, width, height) {
 
   for (let i = 0; i < out.length; i += 4) {
     const trimAlpha = trimPixels[i + 3]
-    // Si le pixel du trim est visible (non transparent), on le retire de l'item
     if (trimAlpha > 0) {
-      // Pour une suppression brute, on met l'alpha de l'item de base à 0
       out[i + 3] = 0
     }
   }
@@ -170,8 +173,11 @@ async function runConcurrent(tasks, limit) {
   return results
 }
 
-function saveGeneratedTexture(textureBuffer, material, item, trim) {
-  const outputPath = path.join(GENERATED_TEXTURE_OUTPUT_PATH, `${material}_${item}_${trim}_trim.png`)
+function saveGeneratedTexture(textureBuffer, material, item, trim, isOverlay = false) {
+  const fileName = isOverlay 
+    ? `${material}_${item}_overlay_${trim}_trim.png`
+    : `${material}_${item}_${trim}_trim.png`;
+  const outputPath = path.join(GENERATED_TEXTURE_OUTPUT_PATH, fileName)
   fs.writeFileSync(outputPath, textureBuffer)
 }
 
@@ -193,6 +199,12 @@ async function run() {
           ? loadFile(path.join(ITEM_TEXTURE_PATH, 'turtle_helmet.png'))
           : loadFile(path.join(ITEM_TEXTURE_PATH, `${material}_armor/${material}_${armor}.png`))
         itemBufferMap.set(key, buf)
+
+        // CHARGEMENT SPÉCIFIQUE DE L'OVERLAY DU CUIR
+        if (material === 'leather') {
+          const overlayBuf = loadFile(path.join(ITEM_TEXTURE_PATH, `${material}_armor/${material}_${armor}_overlay.png`))
+          itemBufferMap.set(`${key}_overlay`, overlayBuf)
+        }
       } catch (err) {
         console.warn(`Warning: Could not load texture for ${key}: ${err.message}`)
         console.error(err)
@@ -231,7 +243,15 @@ async function run() {
   console.log(`Chargé ${paletteRawMap.size} palettes, ${itemBufferMap.size} textures d'items et ${trimRawMap.size} textures de trim.`)
 
   const tasks = []
-  const generatedTexturesSet = new Set() // Empêche de régénérer plusieurs fois la même texture d'item "découpé"
+  const generatedTexturesSet = new Set() 
+  let completedTasks = 0 // Déclaration déplacée ici pour être accessible partout
+
+  const showProgression = () => {
+    completedTasks++
+    if (completedTasks === 0) return
+    if (completedTasks % 100 > 0) return
+    console.log(`Progression: ${completedTasks}/${tasks.length}`)
+  }
 
   for (const trim of trim_list) {
     for (const palette of palette_list) {
@@ -259,11 +279,21 @@ async function run() {
           const textureUniqueKey = `${material}_${armor}_${trim}`
 
           tasks.push(async () => {
-            // Ne génère la texture que si elle n'a pas déjà été faite (pour une autre palette)
             if (!generatedTexturesSet.has(textureUniqueKey)) {
               generatedTexturesSet.add(textureUniqueKey)
+              
+              // Découpe de la texture de base
               const finalBuffer = await subtractTrimFromItem(itemBuffer, trimRaw, width, height)
-              saveGeneratedTexture(finalBuffer, material, armor, trim)
+              saveGeneratedTexture(finalBuffer, material, armor, trim, false)
+
+              // Découpe spécifique pour l'overlay du cuir
+              if (material === 'leather') {
+                const overlayBuffer = itemBufferMap.get(`${itemKey}_overlay`)
+                if (overlayBuffer) {
+                  const finalOverlayBuffer = await subtractTrimFromItem(overlayBuffer, trimRaw, width, height)
+                  saveGeneratedTexture(finalOverlayBuffer, material, armor, trim, true)
+                }
+              }
             }
             
             generateJsonModel(trim, palette, armor, material)
@@ -292,11 +322,10 @@ async function run() {
           const textureUniqueKey = `${material}_${tool}_${trim}`
 
           tasks.push(async () => {
-            // Ne génère la texture que si elle n'a pas déjà été faite (pour une autre palette)
             if (!generatedTexturesSet.has(textureUniqueKey)) {
               generatedTexturesSet.add(textureUniqueKey)
               const finalBuffer = await subtractTrimFromItem(itemBuffer, trimRaw, width, height)
-              saveGeneratedTexture(finalBuffer, material, tool, trim)
+              saveGeneratedTexture(finalBuffer, material, tool, trim, false)
             }
             
             generateJsonModel(trim, palette, tool, material)
@@ -308,15 +337,7 @@ async function run() {
     }
   }
 
-  const showProgression = () => {
-    completedTasks++
-    if (completedTasks === 0) return
-    if (completedTasks % 100 > 0) return
-    console.log(`Progression: ${completedTasks}/${tasks.length}`)
-  }
-
   console.log(`Génération de ${tasks.length} configurations de modèles...`)
-  let completedTasks = 0
   await runConcurrent(tasks, CONCURRENCY_LIMIT)
   console.log('Génération terminée.')
 }
