@@ -8,6 +8,7 @@ const TRIM_TEXTURE_PATH = path.join(__dirname, 'textures/trims/items')
 const ITEM_TEXTURE_PATH = path.join(__dirname, 'textures/item')
 const GENERATED_MODELS_OUTPUT_PATH = path.join(__dirname, 'generated_models')
 const GENERATED_RECIPES_OUTPUT_PATH = path.join(__dirname, 'generated_recipes')
+const GENERATED_RECIPES2_OUTPUT_PATH = path.join(__dirname, 'generated_recipes2')
 const GENERATED_TEXTURE_OUTPUT_PATH = path.join(__dirname, 'generated_textures')
 
 const CONCURRENCY_LIMIT = 16
@@ -71,6 +72,7 @@ const palette_ids = {
 
 fs.mkdirSync(GENERATED_MODELS_OUTPUT_PATH, { recursive: true })
 fs.mkdirSync(GENERATED_RECIPES_OUTPUT_PATH, { recursive: true })
+fs.mkdirSync(GENERATED_RECIPES2_OUTPUT_PATH, { recursive: true })
 fs.mkdirSync(GENERATED_TEXTURE_OUTPUT_PATH, { recursive: true })
 
 function loadFile(filePath) {
@@ -85,38 +87,30 @@ async function extractRawPixels(imageBuffer) {
   return { pixels: new Uint8Array(data.buffer), width: info.width, height: info.height, channels: info.channels || 3 }
 }
 
+function buildPaletteIndexMap(templatePixels, channels) {
+  const paletteIndexMap = new Map()
+  const total = templatePixels.length / channels
+  for (let i = 0; i < total; i++) {
+    const base = i * channels
+    const key = (templatePixels[base] << 16) | (templatePixels[base + 1] << 8) | templatePixels[base + 2]
+    if (!paletteIndexMap.has(key)) paletteIndexMap.set(key, i)
+  }
+  return paletteIndexMap
+}
+
+// Nettoie le nom de la palette pour le nom du fichier (retire _darker)
 function getCleanPaletteName(palette) {
   return palette.endsWith('_darker') ? palette.replace('_darker', '') : palette;
 }
 
-function getNamespaceForPalette(palette) {
-  const cleanPalette = getCleanPaletteName(palette);
-  const vanillaMaterials = [
-    'amethyst', 'diamond', 'emerald', 'copper', 'iron', 
-    'gold', 'resin', 'redstone', 'lapis', 'quartz', 'netherite'
-  ];
-  return vanillaMaterials.includes(cleanPalette) ? 'minecraft' : 'more_item_materials';
-}
-
 function generateJsonModel(trim, palette, item, material) {
   const cleanPalette = getCleanPaletteName(palette)
-  const namespace = getNamespaceForPalette(palette)
-  
   const model = {
     parent: 'minecraft:item/generated',
     textures: {
-      layer0: `minecraft:item/${material}_${item}_${trim}_trim`,
-      layer1: `${namespace}:trims/items/${item}_trim_${trim}_${cleanPalette}`
+      layer0: `minecraft:item/${material}_${item}_${trim}_trim_${cleanPalette}`
     }
   }
-
-  // Si c'est du cuir, l'item a besoin d'une layer d'overlay (layer1 devient layer2, overlay devient layer1)
-  if (material === 'leather') {
-    model.textures.layer0 = `minecraft:item/leather_${item}_${trim}_trim`
-    model.textures.layer1 = `minecraft:item/leather_${item}_overlay_${trim}_trim`
-    model.textures.layer2 = `${namespace}:trims/items/${item}_trim_${trim}_${cleanPalette}`
-  }
-
   const outputPath = path.join(GENERATED_MODELS_OUTPUT_PATH, `${material}_${item}_${trim}_trim_${cleanPalette}.json`)
   fs.mkdirSync(path.dirname(outputPath), { recursive: true })
   fs.writeFileSync(outputPath, JSON.stringify(model, null, 2))
@@ -136,7 +130,15 @@ function generateFirstRecipe(trim, trim_index, palette, palette_item, item, mate
       item: `minecraft:${trim}_armor_trim_smithing_template`
     },
     result: {
-      id: `minecraft:${material}_${item}`
+      id: `minecraft:${material}_${item}`,
+      components: {
+        'minecraft:trim': {
+          material: `minecraft:${cleanPalette}`, // Suffixe _darker retiré ici
+          pattern: `minecraft:${trim}`,
+          show_in_tooltip: true
+        },
+        'minecraft:custom_model_data': trim_index + 1
+      }
     }
   }
   const outputPath = path.join(GENERATED_RECIPES_OUTPUT_PATH, `${material}_${item}_${trim}_trim_${cleanPalette}_smithing.json`)
@@ -144,15 +146,75 @@ function generateFirstRecipe(trim, trim_index, palette, palette_item, item, mate
   fs.writeFileSync(outputPath, JSON.stringify(recipe, null, 2))
 }
 
-async function subtractTrimFromItem(itemBuffer, trimRaw, width, height) {
+function generateSecondRecipe(trim, trim_index, palette, palette_item, item, material) {
+  const cleanPalette = getCleanPaletteName(palette)
+  const recipe = {
+    type: 'minecraft:smithing_transform',
+    base: `minecraft:${material}_${item}`,
+    addition: `minecraft:${palette_item}`,
+    template: `minecraft:${trim}_armor_trim_smithing_template`,
+    result: {
+      id: `minecraft:${material}_${item}`,
+      components: {
+        'minecraft:trim': {
+          material: `minecraft:${cleanPalette}`, // Suffixe _darker retiré ici
+          pattern: `minecraft:${trim}`,
+          show_in_tooltip: true
+        },
+        'minecraft:custom_model_data': trim_index + 1 
+      }
+    }
+  }
+  const outputPath = path.join(GENERATED_RECIPES2_OUTPUT_PATH, `${material}_${item}_${trim}_trim_${cleanPalette}_smithing.json`)
+  fs.mkdirSync(path.dirname(outputPath), { recursive: true })
+  fs.writeFileSync(outputPath, JSON.stringify(recipe, null, 2))
+}
+
+async function applyPaletteToTrim(trimRaw, paletteRaw, templateIndexMap) {
+  const src = trimRaw.pixels
+  const palSrc = paletteRaw.pixels
+  const palChannels = paletteRaw.channels
+
+  const width = trimRaw.width
+  const height = trimRaw.height
+  const out = Buffer.allocUnsafe(width * height * 4)
+
+  for (let i = 0, o = 0; i < src.length; i += 4, o += 4) {
+    const r = src[i], g = src[i + 1], b = src[i + 2], a = src[i + 3]
+    const key = (r << 16) | (g << 8) | b
+    const idx = templateIndexMap.get(key)
+    if (idx === undefined) {
+      out[o] = r; out[o + 1] = g; out[o + 2] = b; out[o + 3] = a
+    } else {
+      const palBase = idx * palChannels
+      out[o] = palSrc[palBase]
+      out[o + 1] = palSrc[palBase + 1]
+      out[o + 2] = palSrc[palBase + 2]
+      out[o + 3] = a
+    }
+  }
+  return out
+}
+
+async function compositeAndEncode(trimPixels, itemBuffer, width, height) {
   const { data } = await sharp(itemBuffer).raw().toBuffer({ resolveWithObject: true })
   const out = Buffer.from(data)
-  const trimPixels = trimRaw.pixels
 
-  for (let i = 0; i < out.length; i += 4) {
-    const trimAlpha = trimPixels[i + 3]
-    if (trimAlpha > 0) {
-      out[i + 3] = 0
+  for (let i = 0; i < trimPixels.length; i += 4) {
+    const ta = trimPixels[i + 3]
+    if (ta === 0) continue
+    if (ta === 255) {
+      out[i] = trimPixels[i]
+      out[i + 1] = trimPixels[i + 1]
+      out[i + 2] = trimPixels[i + 2]
+      out[i + 3] = 255
+    } else {
+      const ia = out[i + 3]
+      const a = ta / 255
+      out[i] = Math.round(trimPixels[i] * a + out[i] * (1 - a))
+      out[i + 1] = Math.round(trimPixels[i + 1] * a + out[i + 1] * (1 - a))
+      out[i + 2] = Math.round(trimPixels[i + 2] * a + out[i + 2] * (1 - a))
+      out[i + 3] = Math.min(255, ta * ia)
     }
   }
 
@@ -173,15 +235,17 @@ async function runConcurrent(tasks, limit) {
   return results
 }
 
-function saveGeneratedTexture(textureBuffer, material, item, trim, isOverlay = false) {
-  const fileName = isOverlay 
-    ? `${material}_${item}_overlay_${trim}_trim.png`
-    : `${material}_${item}_${trim}_trim.png`;
-  const outputPath = path.join(GENERATED_TEXTURE_OUTPUT_PATH, fileName)
+function saveGeneratedTexture(textureBuffer, material, item, trim, palette) {
+  const cleanPalette = getCleanPaletteName(palette)
+  const outputPath = path.join(GENERATED_TEXTURE_OUTPUT_PATH, `${material}_${item}_${trim}_trim_${cleanPalette}.png`)
   fs.writeFileSync(outputPath, textureBuffer)
 }
 
 async function run() {
+  const color_palette_template_buffer = fs.readFileSync(PALETTE_TEMPLATE_PATH)
+  const templateRaw = await extractRawPixels(color_palette_template_buffer)
+  const templateIndexMap = buildPaletteIndexMap(templateRaw.pixels, templateRaw.channels)
+
   const paletteRawMap = new Map()
   await Promise.all(palette_list.filter(p => p !== 'trim_palette').map(async palette => {
     const buf = loadFile(path.join(PALETTE_PATH, `${palette}.png`))
@@ -199,12 +263,6 @@ async function run() {
           ? loadFile(path.join(ITEM_TEXTURE_PATH, 'turtle_helmet.png'))
           : loadFile(path.join(ITEM_TEXTURE_PATH, `${material}_armor/${material}_${armor}.png`))
         itemBufferMap.set(key, buf)
-
-        // CHARGEMENT SPÉCIFIQUE DE L'OVERLAY DU CUIR
-        if (material === 'leather') {
-          const overlayBuf = loadFile(path.join(ITEM_TEXTURE_PATH, `${material}_armor/${material}_${armor}_overlay.png`))
-          itemBufferMap.set(`${key}_overlay`, overlayBuf)
-        }
       } catch (err) {
         console.warn(`Warning: Could not load texture for ${key}: ${err.message}`)
         console.error(err)
@@ -243,26 +301,23 @@ async function run() {
   console.log(`Chargé ${paletteRawMap.size} palettes, ${itemBufferMap.size} textures d'items et ${trimRawMap.size} textures de trim.`)
 
   const tasks = []
-  const generatedTexturesSet = new Set() 
-  let completedTasks = 0 // Déclaration déplacée ici pour être accessible partout
-
-  const showProgression = () => {
-    completedTasks++
-    if (completedTasks === 0) return
-    if (completedTasks % 100 > 0) return
-    console.log(`Progression: ${completedTasks}/${tasks.length}`)
-  }
 
   for (const trim of trim_list) {
     for (const palette of palette_list) {
       const paletteRaw = paletteRawMap.get(palette)
       if (!paletteRaw) continue
 
-      // --- TRAITEMENT DES ARMURES ---
+      const paletteCache = new Map()
+
       for (const armor of armor_list) {
         const trimKey = `${armor}_${trim}`
         const trimRaw = trimRawMap.get(trimKey)
         if (!trimRaw) continue
+
+        if (!paletteCache.has(armor)) {
+          paletteCache.set(armor, applyPaletteToTrim(trimRaw, paletteRaw, templateIndexMap))
+        }
+        const recoloredTrimPixels = await paletteCache.get(armor)
 
         for (const material of armor_material_list) {
           if (armor !== 'helmet' && material === 'turtle') continue
@@ -276,38 +331,28 @@ async function run() {
           if (!itemBuffer) continue
 
           const { width, height } = trimRaw
-          const textureUniqueKey = `${material}_${armor}_${trim}`
-
           tasks.push(async () => {
-            if (!generatedTexturesSet.has(textureUniqueKey)) {
-              generatedTexturesSet.add(textureUniqueKey)
-              
-              // Découpe de la texture de base
-              const finalBuffer = await subtractTrimFromItem(itemBuffer, trimRaw, width, height)
-              saveGeneratedTexture(finalBuffer, material, armor, trim, false)
-
-              // Découpe spécifique pour l'overlay du cuir
-              if (material === 'leather') {
-                const overlayBuffer = itemBufferMap.get(`${itemKey}_overlay`)
-                if (overlayBuffer) {
-                  const finalOverlayBuffer = await subtractTrimFromItem(overlayBuffer, trimRaw, width, height)
-                  saveGeneratedTexture(finalOverlayBuffer, material, armor, trim, true)
-                }
-              }
-            }
-            
+            const finalBuffer = await compositeAndEncode(recoloredTrimPixels, itemBuffer, width, height)
+            saveGeneratedTexture(finalBuffer, material, armor, trim, palette)
             generateJsonModel(trim, palette, armor, material)
             generateFirstRecipe(trim, trim_list.indexOf(trim), palette, palette_ids[palette], armor, material)
+            generateSecondRecipe(trim, trim_list.indexOf(trim), palette, palette_ids[palette], armor, material)
             showProgression()
           })
         }
       }
 
-      // --- TRAITEMENT DES OUTILS ---
+      paletteCache.clear()
+
       for (const tool of tool_list) {
         const trimKey = `${tool}_${trim}`
         const trimRaw = trimRawMap.get(trimKey)
         if (!trimRaw) continue
+
+        if (!paletteCache.has(tool)) {
+          paletteCache.set(tool, applyPaletteToTrim(trimRaw, paletteRaw, templateIndexMap))
+        }
+        const recoloredTrimPixels = await paletteCache.get(tool)
 
         for (const material of tool_material_list) {
           const isDarker = palette.endsWith('_darker')
@@ -319,17 +364,12 @@ async function run() {
           if (!itemBuffer) continue
 
           const { width, height } = trimRaw
-          const textureUniqueKey = `${material}_${tool}_${trim}`
-
           tasks.push(async () => {
-            if (!generatedTexturesSet.has(textureUniqueKey)) {
-              generatedTexturesSet.add(textureUniqueKey)
-              const finalBuffer = await subtractTrimFromItem(itemBuffer, trimRaw, width, height)
-              saveGeneratedTexture(finalBuffer, material, tool, trim, false)
-            }
-            
+            const finalBuffer = await compositeAndEncode(recoloredTrimPixels, itemBuffer, width, height)
+            saveGeneratedTexture(finalBuffer, material, tool, trim, palette)
             generateJsonModel(trim, palette, tool, material)
             generateFirstRecipe(trim, trim_list.indexOf(trim), palette, palette_ids[palette], tool, material)
+            generateSecondRecipe(trim, trim_list.indexOf(trim), palette, palette_ids[palette], tool, material)
             showProgression()
           })
         }
@@ -337,7 +377,15 @@ async function run() {
     }
   }
 
-  console.log(`Génération de ${tasks.length} configurations de modèles...`)
+  const showProgression = () => {
+    completedTasks++
+    if (completedTasks === 0) return
+    if (completedTasks % 100 > 0) return
+    console.log(`Progression: ${completedTasks}/${tasks.length}`)
+  }
+
+  console.log(`Génération de ${tasks.length} textures et modèles...`)
+  let completedTasks = 0
   await runConcurrent(tasks, CONCURRENCY_LIMIT)
   console.log('Génération terminée.')
 }
